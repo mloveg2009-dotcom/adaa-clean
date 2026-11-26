@@ -198,7 +198,7 @@ button:disabled{opacity:.6;cursor:wait}
 .flash.success{background:var(--green-bg);color:var(--green)}
 .auth-screen{min-height:100vh;background:radial-gradient(ellipse at 12% 8%,#ecdfc1 0,transparent 34%),linear-gradient(135deg,#f8f6ee,#f4f3eb 48%,#e7eee8);display:grid;place-items:center;padding:25px}
 .auth-layout{width:min(100%,980px);display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid #ebece5;border-radius:24px;box-shadow:0 22px 70px #193b2c16;overflow:hidden;min-height:560px}
-.auth-brand-panel{background:linear-gradient(155deg,#174c3e,#10372e);color:#fff;padding:44px 39px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.auth-brand-panel{background-image:linear-gradient(155deg,#082d27cc 0%,#0b4238b8 48%,#0c2f29d9 100%),url('assets/cleaning-hero.jpg');background-color:#10372e;background-size:cover;background-position:68% center;color:#fff;padding:44px 39px;display:flex;flex-direction:column;position:relative;overflow:hidden}
 .auth-brand-panel:after,.auth-brand-panel:before{content:"";position:absolute;border:1px solid #ffffff18;border-radius:50%;width:380px;height:380px;left:-160px;bottom:-205px}
 .auth-brand-panel:before{width:280px;height:280px;left:-92px;bottom:-155px}
 .auth-mark{width:56px;height:56px;border-radius:19px;background:linear-gradient(145deg,#e1c37e,#ac813c);color:#193e32;display:grid;place-items:center;font-size:29px;font-weight:700}
