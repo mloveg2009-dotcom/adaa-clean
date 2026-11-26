@@ -1,6 +1,6 @@
 const app = document.getElementById('app');
 const state = { user:null, page:'dashboard', teacherId:null, modal:null, modalBusy:false, mobileOpen:false, report:null, dashboard:null };
-const roleNames = { chair:'مدير المطبخ', director:'المدير العام' };
+const roleNames = { chair:'مسؤول النظافة', director:'المدير العام' };
 function canManage(){ return state.user?.role==='chair'||state.user?.role==='director'; }
 const iconPaths = {
   grid:'<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>',
@@ -28,12 +28,12 @@ const iconPaths = {
 };
 const criteriaDefaults = [
   {key:'hygiene',label:'النظافة الشخصية ونظافة منطقة العمل',max:10},
-  {key:'foodSafety',label:'الالتزام بسلامة الغذاء والتخزين',max:10},
-  {key:'quality',label:'جودة إعداد الطعام والالتزام بالوصفة',max:10},
+  {key:'foodSafety',label:'الالتزام بمواد التنظيف وسلامة استخدامها',max:10},
+  {key:'quality',label:'جودة التنظيف والالتزام بالمعايير',max:10},
   {key:'speed',label:'سرعة الإنجاز وتنظيم وقت العمل',max:10},
   {key:'discipline',label:'الانضباط والالتزام بالدوام',max:10},
   {key:'teamwork',label:'التعاون مع فريق العمل وحسن التعامل',max:10},
-  {key:'equipment',label:'المحافظة على الأدوات وتقليل الهدر',max:10},
+  {key:'equipment',label:'المحافظة على أدوات ومعدات النظافة',max:10},
 ];
 let criteria = criteriaDefaults;
 
@@ -49,7 +49,7 @@ function gradePill(e) { const label=e.warning?'إنذار':e.grade||gradeLabel(e
 function gradeLabel(score) { const n=Number(score);return n>=9?'ممتاز':n>=8?'جيد جدًا':n>=7?'جيد':'إنذار تلقائي'; }
 function initial(name='') { return [...String(name).trim()][0]||'م'; }
 function teacherAvatar(name,cls='teacher-initial') { return `<span class="${cls}">${esc(initial(name))}</span>`; }
-function genderLabel(value='') { const v=String(value||''); return v==='شيخ'?'عامل':v==='شيخة'?'عاملة':v; }
+function genderLabel(value='') { const v=String(value||''); return v==='شيخ'||v==='عامل'?'منظف':v==='شيخة'||v==='عاملة'?'منظفة':v; }
 function toast(message,type='') { const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=message;document.getElementById('toast-region').append(el);setTimeout(()=>el.remove(),3800); }
 	const SUPABASE_FUNCTION_URL='https://roqbzvbihdpuzkjmcugu.supabase.co/functions/v1/adaa-api';
 	const CRITERIA_FUNCTION_URL='https://roqbzvbihdpuzkjmcugu.supabase.co/functions/v1/adaa-criteria';

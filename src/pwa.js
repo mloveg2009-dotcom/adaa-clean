@@ -1,4 +1,4 @@
-// يعرض زر التثبيت أسفل تسجيل الخروج ويتعامل مع نافذة التثبيت وإرشادات المتصفحات الأخرى.
+// يعرض زر التثبيت أسفل تسجيل الخروج ويتمنظف مع نافذة التثبيت وإرشادات المتصفحات الأخرى.
 let installPromptEvent = null;
 let installedDuringSession = false;
 const installedFlag = 'adaa_pwa_installed';

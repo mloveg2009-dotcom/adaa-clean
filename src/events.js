@@ -54,20 +54,20 @@ document.addEventListener('click',async e=>{
     else if(action==='open-teacher-modal'){await openTeacherModal();}
     else if(action==='edit-teacher'){await openTeacherModal(el.dataset.id);}
     else if(action==='delete-teacher'){
-      const teacherName=el.closest('tr')?.querySelector('.teacher-cell strong')?.textContent||document.querySelector('.profile-name')?.textContent||'هذا العامل';
-      if(!window.confirm(`حذف ملف «${teacherName}» من قائمة العاملين؟ سيمنع ذلك تقييمات جديدة لهذا العامل، مع الاحتفاظ بالتقييمات والإنذارات وسجل التعديلات السابق.`))return;
+      const teacherName=el.closest('tr')?.querySelector('.teacher-cell strong')?.textContent||document.querySelector('.profile-name')?.textContent||'هذا المنظف';
+      if(!window.confirm(`حذف ملف «${teacherName}» من قائمة المنظفين؟ سيمنع ذلك تقييمات جديدة لهذا المنظف، مع الاحتفاظ بالتقييمات والإنذارات وسجل التعديلات السابق.`))return;
       await api(`/api/teachers/${el.dataset.id}`,{method:'DELETE'});state.page='teachers';state.teacherId=null;toast('تم حذف الملف من القائمة مع الاحتفاظ بسجلاته السابقة.');await renderPage();
     }
     else if(action==='save-teacher'){
       if(state.modalBusy)return;const form=document.getElementById('teacher-form');if(!form.reportValidity())return;state.modalBusy=true;el.disabled=true;
       const fd=new FormData(form);const data=Object.fromEntries(fd.entries());
-      try{if(el.dataset.id)await api(`/api/teachers/${el.dataset.id}`,{method:'PUT',body:JSON.stringify(data)});else await api('/api/teachers',{method:'POST',body:JSON.stringify(data)});state.modalBusy=false;state.modal='';toast(el.dataset.id?'تم تحديث ملف العامل.':'تم إنشاء ملف العامل.');await renderPage();}
+      try{if(el.dataset.id)await api(`/api/teachers/${el.dataset.id}`,{method:'PUT',body:JSON.stringify(data)});else await api('/api/teachers',{method:'POST',body:JSON.stringify(data)});state.modalBusy=false;state.modal='';toast(el.dataset.id?'تم تحديث ملف المنظف.':'تم إنشاء ملف المنظف.');await renderPage();}
       catch(error){state.modalBusy=false;el.disabled=false;document.getElementById('form-error').innerHTML=`<div class="flash error">${esc(error.message)}</div>`;}
     }
     else if(action==='open-evaluation-modal'){await openEvaluationModal(el.dataset.teacherId||null);}
     else if(action==='edit-evaluation'){const id=el.dataset.id;document.querySelector('.modal-backdrop')?.remove();await openEvaluationModal(null,null,id);}
     else if(action==='delete-evaluation'){
-      const teacher=el.dataset.teacherName||'هذا العامل',date=el.dataset.date||'';
+      const teacher=el.dataset.teacherName||'هذا المنظف',date=el.dataset.date||'';
       if(!window.confirm(`حذف تقييم «${teacher}» بتاريخ ${date}؟ سيُحذف معه الإنذار وسجل التعديلات المرتبطان به.`))return;
       await api(`/api/evaluations/${el.dataset.id}`,{method:'DELETE'});
       toast('تم حذف التقييم.');await renderPage();

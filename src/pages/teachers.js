@@ -1,9 +1,9 @@
 async function teachersPage() {
   const date=dateInputValue();const [{teachers},evaluationData]=await Promise.all([api(`/api/teachers?date=${date}`),api(`/api/evaluations?from=${date}&to=${date}`)]);const todayEvaluations=evaluationData.evaluations||[];const scoreByTeacher=Object.fromEntries(todayEvaluations.map(e=>[e.teacherId??e.teacher_id,e.score]));const idByTeacher=Object.fromEntries(todayEvaluations.map(e=>[e.teacherId??e.teacher_id,e.id]));teachers.forEach(t=>{if(scoreByTeacher[t.id]!==undefined){t.today_score=scoreByTeacher[t.id];t.today_evaluation_id=t.today_evaluation_id||idByTeacher[t.id];}});
-  const actions=canManage()?`<button class="btn btn-primary" data-action="open-teacher-modal">${icon('plus')} إضافة ملف عامل</button>`:'';
-  return `${pageHeading('ملفات العاملين','إدارة بيانات العاملين والعاملات ومراجعة سجلات أداء المطبخ.',actions)}
-    <div class="toolbar"><div class="field"><label>بحث بالاسم</label><input id="teacher-search" placeholder="ابحث عن عامل…" autocomplete="off"></div><span class="toolbar-spacer"></span><span class="record-muted" id="teacher-count">${teachers.length} عاملًا</span></div>
-    <article class="card table-card"><div class="table-wrap"><table class="data-table" id="teachers-table"><thead><tr><th>العامل / العاملة</th><th>التخصص</th><th>التقييمات</th><th>المتوسط</th><th>آخر تقييم</th><th>تقييم اليوم</th><th>الملف والإجراءات</th></tr></thead><tbody>${teachers.length?teachers.map(teacherRowHtml).join(''):`<tr><td colspan="7">${emptyState('لم تتم إضافة ملفات عاملين بعد.',canManage()?'<button class="btn btn-primary btn-small" data-action="open-teacher-modal">إضافة أول ملف</button>':'')}</td></tr>`}</tbody></table></div></article>`;
+  const actions=canManage()?`<button class="btn btn-primary" data-action="open-teacher-modal">${icon('plus')} إضافة ملف منظف</button>`:'';
+  return `${pageHeading('ملفات المنظفين','إدارة بيانات المنظفين والمنظفات ومراجعة سجلات أداء النظافة.',actions)}
+    <div class="toolbar"><div class="field"><label>بحث بالاسم</label><input id="teacher-search" placeholder="ابحث عن منظف…" autocomplete="off"></div><span class="toolbar-spacer"></span><span class="record-muted" id="teacher-count">${teachers.length} منظفًا</span></div>
+    <article class="card table-card"><div class="table-wrap"><table class="data-table" id="teachers-table"><thead><tr><th>المنظف / المنظفة</th><th>مجال العمل</th><th>التقييمات</th><th>المتوسط</th><th>آخر تقييم</th><th>تقييم اليوم</th><th>الملف والإجراءات</th></tr></thead><tbody>${teachers.length?teachers.map(teacherRowHtml).join(''):`<tr><td colspan="7">${emptyState('لم تتم إضافة ملفات منظفين بعد.',canManage()?'<button class="btn btn-primary btn-small" data-action="open-teacher-modal">إضافة أول ملف</button>':'')}</td></tr>`}</tbody></table></div></article>`;
 }
 function teacherRowHtml(t) {
   const daily=t.today_evaluation_id?`<strong class="score ${classScore(t.today_score)}">${formatPercent(t.today_score)}</strong> <span class="pill good">تم التقييم اليوم</span>${canManage()?`<button class="text-link" data-action="edit-evaluation" data-id="${t.today_evaluation_id}">تعديل</button>`:''}`:'<span class="pill neutral">لم يُقيّم بعد</span>';
@@ -13,5 +13,5 @@ function teacherRowHtml(t) {
 function filterTeachers() {
   const q=(document.getElementById('teacher-search')?.value||'').toLocaleLowerCase().trim();let count=0;
   document.querySelectorAll('[data-teacher-row]').forEach(row=>{const match=row.dataset.name.includes(q);row.hidden=!match;if(match)count++;});
-  const counter=document.getElementById('teacher-count');if(counter)counter.textContent=`${count} عامل`;
+  const counter=document.getElementById('teacher-count');if(counter)counter.textContent=`${count} منظف`;
 }
