@@ -1,7 +1,15 @@
 // يعرض زر التثبيت أسفل تسجيل الخروج ويتمنظف مع نافذة التثبيت وإرشادات المتصفحات الأخرى.
+function registerAppServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  const base = new URL('./', document.baseURI);
+  navigator.serviceWorker.register(new URL('sw.js', base).href, { scope: base.pathname }).catch(() => {});
+}
+
 let installPromptEvent = null;
 let installedDuringSession = false;
 const installedFlag = 'adaa_pwa_installed';
+
+registerAppServiceWorker();
 
 function getInstallButton() {
   return document.getElementById('install-app-button');
