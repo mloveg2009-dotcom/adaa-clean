@@ -51,8 +51,8 @@ function initial(name='') { return [...String(name).trim()][0]||'م'; }
 function teacherAvatar(name,cls='teacher-initial') { return `<span class="${cls}">${esc(initial(name))}</span>`; }
 function genderLabel(value='') { const v=String(value||''); return v==='شيخ'?'عامل':v==='شيخة'?'عاملة':v; }
 function toast(message,type='') { const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=message;document.getElementById('toast-region').append(el);setTimeout(()=>el.remove(),3800); }
-	const SUPABASE_FUNCTION_URL='https://iilvyanrwcexkejkjzed.supabase.co/functions/v1/adaa-api';
-	const CRITERIA_FUNCTION_URL='https://iilvyanrwcexkejkjzed.supabase.co/functions/v1/adaa-criteria';
+	const SUPABASE_FUNCTION_URL='https://roqbzvbihdpuzkjmcugu.supabase.co/functions/v1/adaa-api';
+	const CRITERIA_FUNCTION_URL='https://roqbzvbihdpuzkjmcugu.supabase.co/functions/v1/adaa-criteria';
 
 
 
