@@ -1,0 +1,44 @@
+async function evaluationsPage() {
+  const {teachers}=await api('/api/teachers');const {evaluations}=await api('/api/evaluations');
+  const canAdd=canManage()||canManage();const canDelete=canManage();
+  const actions=canAdd?`${canDelete?'<button id="delete-selected-evaluations" class="btn btn-danger" data-action="delete-selected-evaluations" disabled>حذف المحدد (0)</button>':''}<button class="btn btn-primary" data-action="open-evaluation-modal">${icon('plus')} إدخال تقييم</button>`:'';
+  return `${pageHeading('التقييمات اليومية','سجل الدرجات والمعايير والتوجيهات لكل يوم.',actions)}
+    <div class="toolbar"><div class="field"><label>بحث بالعامل</label><input id="evaluation-search" placeholder="اسم العامل" autocomplete="off"></div><div class="field"><label>من تاريخ</label><input id="evaluation-from" type="date"></div><div class="field"><label>إلى تاريخ</label><input id="evaluation-to" type="date"></div><button class="btn btn-secondary" data-action="filter-evaluations">${icon('search')} تطبيق</button><span class="toolbar-spacer"></span><span class="record-muted" id="evaluation-count">${evaluations.length} تقييمًا</span></div>
+    <article class="card table-card"><div class="table-wrap"><table class="data-table"><thead><tr>${canDelete?'<th class="eval-select-cell"><input id="select-all-evaluations" class="evaluation-select" type="checkbox" aria-label="تحديد كل التقييمات المعروضة"></th>':''}<th>التاريخ</th><th>العامل</th><th>المجموع</th><th>التقدير</th><th>المقيّم</th><th>المدير العام</th><th>الإجراء</th></tr></thead><tbody id="evaluation-rows">${evaluationRows(evaluations,teachers)}</tbody></table></div></article>`;
+}
+function evaluationRows(evaluations) {
+  const canDelete=canManage();
+  const emptyColspan=canDelete?8:7;
+  return evaluations.length?evaluations.map(e=>`<tr data-evaluation-row data-date="${e.date}" data-name="${esc(e.teacherName.toLocaleLowerCase())}">${canDelete?`<td class="eval-select-cell"><input class="evaluation-select" type="checkbox" data-evaluation-select value="${e.id}" aria-label="تحديد تقييم ${esc(e.teacherName)} بتاريخ ${e.date}"></td>`:''}<td>${dateText(e.date)}</td><td><div class="teacher-cell">${teacherAvatar(e.teacherName)}<div><strong>${esc(e.teacherName)}</strong><small>${esc(genderLabel(e.teacherGender))}</small></div></div></td><td><strong class="score ${classScore(e.score)}">${formatPercent(e.score)}</strong></td><td>${gradePill(e)}</td><td>${esc(e.evaluatorName)}</td><td>${e.directive?`<span class="pill good">تم التوجيه</span>`:`<span class="record-muted">بانتظار المراجعة</span>`}</td><td><button class="text-link" data-action="why" data-id="${e.id}">${canManage()?'لماذا حصل على هذه الدرجة؟':'عرض التفاصيل'}</button>${canManage()&&!e.teacherDeleted?`<button class="text-link" data-action="edit-evaluation" data-id="${e.id}">تعديل</button>`:''}${canDelete?`<button class="btn btn-danger btn-small" data-action="delete-evaluation" data-id="${e.id}" data-teacher-name="${esc(e.teacherName)}" data-date="${e.date}">حذف</button>`:''}</td></tr>`).join(''):`<tr><td colspan="${emptyColspan}">${emptyState('لا توجد تقييمات ضمن الفترة المحددة.')}</td></tr>`;
+}
+function updateEvaluationSelection() {
+  const boxes=[...document.querySelectorAll('[data-evaluation-select]')];
+  const selected=boxes.filter(box=>box.checked).length;
+  const button=document.getElementById('delete-selected-evaluations');
+  if(button){button.disabled=selected===0;button.textContent='حذف المحدد ('+selected+')';}
+  const selectAll=document.getElementById('select-all-evaluations');
+  if(selectAll){selectAll.disabled=boxes.length===0;selectAll.checked=boxes.length>0&&selected===boxes.length;selectAll.indeterminate=selected>0&&selected<boxes.length;}
+}
+
+async function warningsPage() {
+  const {warnings:rawWarnings}=await api('/api/warnings');const [{evaluations},teacherData]=await Promise.all([api('/api/evaluations'),api('/api/teachers')]);const teacherMap=Object.fromEntries((teacherData.teachers||[]).map(t=>[t.id,t]));const evalMap=Object.fromEntries((evaluations||[]).map(e=>[e.id,e]));const warnings=(rawWarnings||[]).map(w=>{const e=evalMap[w.evaluation_id]||{};const t=teacherMap[e.teacherId]||{};return {...w,teacher_name:t.name||e.teacherName||'—',teacher_gender:t.gender||e.teacherGender||'',date:e.date,score:Number(e.score),issuer_name:e.evaluatorName||'—'};});const fresh=warnings.filter(w=>!w.seen_at).length;
+  return `${pageHeading('سجل الإنذارات','متابعة جميع النتائج الأقل من 70% وقراءة أسبابها المسجلة.',`<span class="pill low">${fresh} تنبيه جديد</span>`)}
+    <div class="warning-banner"><span class="warning-dot"></span><div><strong>آلية الإنذار التلقائي</strong>عند نزول نتيجة التقييم اليومي عن 70%، يُحفظ إنذار مرتبط بالتقييم وسببه، ويظهر للطرفين المخوّلين بالمراجعة.</div></div>
+    <article class="card table-card"><div class="table-wrap"><table class="data-table"><thead><tr><th>الحالة</th><th>العامل</th><th>تاريخ التقييم</th><th>النسبة</th><th>السبب</th><th>سجلها</th><th>الإجراء</th></tr></thead><tbody>${warnings.length?warnings.map(w=>`<tr><td>${w.seen_at?'<span class="pill neutral">تمت المراجعة</span>':'<span class="pill low"><span class="warning-dot"></span>جديد</span>'}</td><td><div class="teacher-cell">${teacherAvatar(w.teacherName||w.teacher_name)}<div><strong>${esc(w.teacher_name)}</strong><small>${esc(w.teacher_gender)}</small></div></div></td><td>${dateText(w.date)}</td><td><strong class="score low">${formatPercent(w.score)}</strong></td><td>${esc(w.reason)}</td><td>${esc(w.issuer_name)}</td><td><button class="text-link" data-action="warning-review" data-eval-id="${w.evaluation_id||w.id}" data-id="${w.id}">مراجعة السبب</button></td></tr>`).join(''):`<tr><td colspan="7">${emptyState('لا توجد إنذارات مسجلة.')}</td></tr>`}</tbody></table></div></article>`;
+}
+
+async function applyEvaluationFilters() {
+  const from=document.getElementById('evaluation-from').value;const to=document.getElementById('evaluation-to').value;const search=document.getElementById('evaluation-search').value.trim().toLocaleLowerCase();
+  const qs=new URLSearchParams();if(from)qs.set('from',from);if(to)qs.set('to',to);
+  const {evaluations}=await api(`/api/evaluations?${qs}`);const tbody=document.getElementById('evaluation-rows');if(!tbody)return;
+  const filtered=evaluations.filter(e=>e.teacherName.toLocaleLowerCase().includes(search));tbody.innerHTML=evaluationRows(filtered);document.getElementById('evaluation-count').textContent=`${filtered.length} تقييمًا`;updateEvaluationSelection();
+}
+
+async function refreshTeacherChoices(day) {
+  const select=document.querySelector('#evaluation-form [name="teacherId"]');if(!select)return;
+  const selected=select.value;const {teachers}=await api(`/api/teachers?date=${encodeURIComponent(day)}`);
+  select.innerHTML='<option value="">اختر العامل</option>'+teachers.map(t=>{
+    const evaluated=Boolean(t.today_evaluation_id);return `<option value="${t.id}" ${selected===String(t.id)&&!evaluated?'selected':''} ${evaluated?'disabled':''}>${esc(t.name)} · ${esc(genderLabel(t.gender))}${evaluated?' · تم تقييمه في هذا التاريخ':''}</option>`;
+  }).join('');
+  if(selected&&teachers.some(t=>String(t.id)===selected&&t.today_evaluation_id))toast('هذا العامل لديه تقييم مسجل في التاريخ المختار؛ استخدم زر «تعديل» لتغييره.','error');
+}
