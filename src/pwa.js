@@ -57,6 +57,16 @@ function hideInstallButton() {
   if (button) button.hidden = true;
 }
 
+// تُرسم الواجهة بعد التحقق من الجلسة، لذلك قد يُضاف الزر إلى DOM بعد تشغيل هذا الملف.
+// راقب تغييرات الواجهة حتى يظهر زر التثبيت حتى في المتصفحات التي لا تطلق beforeinstallprompt.
+function watchInstallButton() {
+  if (!document.documentElement || typeof MutationObserver === 'undefined') return;
+  const observer = new MutationObserver(() => {
+    if (getInstallButton()) syncInstallButton();
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+}
+
 function showManualInstallGuide() {
   const ua = navigator.userAgent || '';
   const isAppleMobile = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -113,3 +123,10 @@ document.addEventListener('click', async event => {
     if (button.isConnected) button.disabled = false;
   }
 });
+
+watchInstallButton();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', syncInstallButton, { once: true });
+} else {
+  syncInstallButton();
+}
